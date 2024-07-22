@@ -4,3 +4,11 @@ Everypone is allowed to create pull request to add a CA / sub ca certificate and
 
 We are not activly maintianing the certificates itself and we are not repsonible for any of the provided certificates.
 You will use this at your own risk.
+
+
+## structure
+### intermediaries
+The intermediaries folder contains all intermediary CA certificates of the bundle.
+
+### roots
+The roots folder contains all root CA certificates of the bundle.
