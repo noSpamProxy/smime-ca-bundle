@@ -33,3 +33,7 @@ jobs:
         run: |
           echo Add other actions to build,
           openssl
+      - uses: ncipollo/release-action@v1.14.0
+        with:
+          artifacts: "releasebuild.zip"
+          body: "asdf"
