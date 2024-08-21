@@ -24,18 +24,19 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
       - name: ZIP certificates
-        run: zip -r releasebuild.zip $GITHUB_WORKSPACE/roots $GITHUB_WORKSPACE/intermediaries
+        run: |
+          cd $GITHUB_WORKSPACE
+          zip -r releasebuild.zip roots intermediaries
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          echo Add other actions to build,
-          openssl
-      - uses: ncipollo/release-action@v1.14.0
+          echo 'create P7B here.'
+          
+      - name: Create release
+        uses: ncipollo/release-action@v1.14.0
         with:
           tag: v0.0.1
-          tag_name: ${{ github.ref }}
           artifacts: "releasebuild.zip"
           body: "asdf"
