@@ -7,7 +7,7 @@ on:
   # Triggers the workflow on push request events but only for the "main" branch
   # there is no trigger for "merge to main"
   push:
-    branches: [ "main" ]
+    branches: [ "ma_in" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
