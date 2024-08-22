@@ -9,7 +9,7 @@ Only check steps which are required by your desired PR type.
 -->
 ### Add certificate
 - [ ] Added certificates are PEM encoded.
-- [ ] I renamed and moved added certificates using the [my_script.ps1](../README.md) script.
+- [ ] I renamed and moved added certificates using the [my_script.ps1](/noSpamProxy/smime-ca-bundle/blob/main/README.md) script.
 
 ## Description
 
