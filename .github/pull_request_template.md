@@ -4,7 +4,7 @@
 - [ ] Remove certificate
 
 ## Checklist before requesting
-<--
+<!--
 Only check steps which are required by your desired PR type.
 -->
 ### Add certificate
