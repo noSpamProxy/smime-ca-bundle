@@ -1,3 +1,6 @@
+# does not work if triggered bei Github itself
+# workarounds possible
+# better solution would be a check in PR
 name: Check certificates to be PEM encoded
 
 on:
