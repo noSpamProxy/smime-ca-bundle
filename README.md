@@ -12,3 +12,4 @@ The intermediaries folder contains all intermediary CA certificates of the bundl
 
 ### roots
 The roots folder contains all root CA certificates of the bundle.
+awdwadwad
