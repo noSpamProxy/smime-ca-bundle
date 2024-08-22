@@ -3,6 +3,14 @@
 - [ ] Add certificate
 - [ ] Remove certificate
 
+## Checklist before requesting
+<--
+Only check steps which are required by your desired PR type.
+-->
+### Add certificate
+- [ ] Added certificates are PEM encoded.
+- [ ] I renamed and moved added certificates using the [my_script.ps1](../README.md) script.
+
 ## Description
 
 <!--
