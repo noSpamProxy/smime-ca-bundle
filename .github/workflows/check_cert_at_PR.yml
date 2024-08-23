@@ -43,10 +43,11 @@ jobs:
           if [[ "$fail" == true ]]
             then
               echo "At least one certificate was not PEM encoded."
-              #exit 1
+              exit 1
           fi
 
       - name: Check file name and location
+        if: always()
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         shell: pwsh
@@ -73,14 +74,19 @@ jobs:
             $year = $cert.NotBefore.Year
             if ($cert.Issuer -eq $cert.Subject) {
                 if ($file -ne "roots/$org/$year/$filename") {
-                  echo "roots/$org/$year/$filename"
                   echo "::error file=$file::$file - root certificate is a wrong location."
                   echo "::notice:: file should be located under roots/$org/$year/$filename"
+                  $fail = $true
                 }
             } else {
                 if ($file -ne "intermediaries/$org/$year/$filename") {
                   echo "::error file=$file::$file - intermediate certificate is a wrong location."
                   echo "::notice:: file should be located under roots/$org/$year/$filename"
+                  $fail = $true
                 }
             }        
           }  
+          if ($fail -eq $true) {
+            echo "At least one certificate is in a wrongl location."
+            exit 1
+          }
