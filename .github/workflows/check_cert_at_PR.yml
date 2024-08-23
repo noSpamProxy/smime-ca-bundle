@@ -31,8 +31,9 @@ jobs:
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
+            openssl version
             openssl x509 -noout -text -in $file
-            if [[ $? != 0 ]]
+            if [[ $? -ne 0 ]]
               then 
                 echo "File is not PEM encoded."
                 fail=true
