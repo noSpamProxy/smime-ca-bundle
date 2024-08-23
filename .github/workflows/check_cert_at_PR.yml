@@ -28,10 +28,10 @@ jobs:
         env:    
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
+        set +e
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
-            openssl version
             openssl x509 -noout -inform PEM -in $file
             if [[ $? -ne 0 ]]
               then 
