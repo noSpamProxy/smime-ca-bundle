@@ -32,12 +32,11 @@ jobs:
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
-            openssl x509 -noout -inform PEM -in $file
+            openssl x509 -noout -inform PEM -in $file &>/dev/null
             if [[ $? -ne 0 ]]
               then 
                 echo "File is not PEM encoded."
                 fail=true
-                echo "test cmd"
             fi
           done        
           if [[ "$fail" == true ]]
@@ -72,7 +71,7 @@ jobs:
             $filename = $filenameTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
             $year = $cert.NotBefore.Year
             if ($cert.Issuer -eq $cert.Subject) {
-                if ($changedFile -eq "roots/$org/$year/$filename") {
+                if ($changedFile -match "roots/$org/$year/$filename") {
                   echo "file match"
                 }
                 else {
