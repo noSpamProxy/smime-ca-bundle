@@ -9,7 +9,7 @@ on:
 
 jobs:
   check:
-    name: Check certificates to be PEM encoded
+    name: Check certificate policies
     runs-on: ubuntu-latest
 
     steps:
