@@ -31,7 +31,6 @@ jobs:
           set +e
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
             openssl x509 -noout -inform PEM -in $file &>/dev/null
             if [[ $? -ne 0 ]]
               then 
@@ -71,19 +70,15 @@ jobs:
             $filename = $filenameTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
             $year = $cert.NotBefore.Year
             if ($cert.Issuer -eq $cert.Subject) {
-                if ("$file" -match "roots/$org/$year/$filename") {
-                  echo "file match"
-                }
-                else {
+                if ($file -ne "roots/$org/$year/$filename") {
                   echo "roots/$org/$year/$filename"
-                  echo "error 1"
+                  echo "::error file=$file::$file - root certificate is in a wrong location."
+                  echo "::notice:: file should be located under roots/$org/$year/$filename"
                 }
             } else {
-                if ($file -eq "intermediaries/$org/$year/$filename") {
-                  echo "file match"
-                } else {
-                  echo "intermediaries/$org/$year/$filename"
-                  echo "error 2"
+                if ($file -ne "intermediaries/$org/$year/$filename") {
+                  echo "::error file=$file::$file - intermediate certificate is in a wrong location."
+                  echo "::notice:: file should be located under roots/$org/$year/$filename"
                 }
             }        
           }  
