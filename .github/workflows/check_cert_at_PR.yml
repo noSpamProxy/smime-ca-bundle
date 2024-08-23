@@ -1,4 +1,4 @@
-name: Check certificates to be PEM encoded
+name: Check certificate policies
 
 on:
   pull_request:
@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Get repo
+        uses: actions/checkout@v4
       
       - name: Get changed files
         id: changed-files
@@ -28,6 +29,7 @@ jobs:
         env:    
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
+          # check PEM encoding
           set +e
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
@@ -49,9 +51,9 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         shell: pwsh
         run: |
+          # check file name and location
           $fail = $false
           foreach ($file in ${env:ALL_CHANGED_FILES}.Split(' ')) {
-            echo "$file was changed"
             $bytes = [System.IO.File]::ReadAllBytes($file)
             $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
             $dn = [X500DistinguishedName]::new($cert.Subject)
@@ -72,12 +74,12 @@ jobs:
             if ($cert.Issuer -eq $cert.Subject) {
                 if ($file -ne "roots/$org/$year/$filename") {
                   echo "roots/$org/$year/$filename"
-                  echo "::error file=$file::$file - root certificate is in a wrong location."
+                  echo "::error file=$file::$file - root certificate is a wrong location."
                   echo "::notice:: file should be located under roots/$org/$year/$filename"
                 }
             } else {
                 if ($file -ne "intermediaries/$org/$year/$filename") {
-                  echo "::error file=$file::$file - intermediate certificate is in a wrong location."
+                  echo "::error file=$file::$file - intermediate certificate is a wrong location."
                   echo "::notice:: file should be located under roots/$org/$year/$filename"
                 }
             }        
