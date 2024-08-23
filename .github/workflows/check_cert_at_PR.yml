@@ -49,7 +49,7 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         shell: pwsh
         run: |
-          fail=false
+          $fail = $false
           foreach ($changedFile in ${ALL_CHANGED_FILES}) {
             echo "$file was changed"
             $bytes = [System.IO.File]::ReadAllBytes($file)
