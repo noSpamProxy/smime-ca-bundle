@@ -31,15 +31,15 @@ jobs:
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
-            openssl x509 -in $file
-            if [[ $? -ne 0 ]]
+            openssl x509 -noout -in $file
+            if [[ $? != 0 ]]
               then 
                 echo "File is not PEM encoded."
                 fail=true
                 echo "test cmd"
             fi
           done        
-          if [[ $fail -eq true ]]
+          if [[ "$fail" == true ]]
             then
               echo "At least one certificate was not PEM encoded."
               #exit 1
