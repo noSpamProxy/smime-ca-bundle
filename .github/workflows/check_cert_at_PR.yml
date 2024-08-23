@@ -35,7 +35,7 @@ jobs:
             openssl x509 -noout -inform PEM -in $file &>/dev/null
             if [[ $? -ne 0 ]]
               then 
-                echo "::error gile=$file::File is not PEM encoded."
+                echo "::error file=$file::$file is not PEM encoded."
                 fail=true
             fi
           done        
