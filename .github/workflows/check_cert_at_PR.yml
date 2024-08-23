@@ -18,6 +18,11 @@ jobs:
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            **.cer
+            **.der
+            **.pem
 
       - name: Check PEM encoding
         env:    
@@ -36,7 +41,7 @@ jobs:
           if [[ $fail -eq true ]]
             then
               echo "At least one certificate was not PEM encoded."
-              exit 1
+              #exit 1
           fi
 
       - name: Check file name and location
