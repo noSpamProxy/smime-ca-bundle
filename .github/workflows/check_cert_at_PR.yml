@@ -37,6 +37,7 @@ jobs:
                 echo "File is not PEM encoded."
                 fail=true
             fi
+            echo "openssl?"
           done        
           if [[ $fail -eq true ]]
             then
@@ -50,7 +51,7 @@ jobs:
         shell: pwsh
         run: |
           $fail = $false
-          foreach ($file in ${env:ALL_CHANGED_FILES}) {
+          foreach ($file in ${env:ALL_CHANGED_FILES}.Split(' ')) {
             echo "$file was changed"
             $bytes = [System.IO.File]::ReadAllBytes($file)
             $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
