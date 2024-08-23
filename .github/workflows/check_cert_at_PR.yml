@@ -71,7 +71,7 @@ jobs:
             $filename = $filenameTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
             $year = $cert.NotBefore.Year
             if ($cert.Issuer -eq $cert.Subject) {
-                if ($changedFile -match "roots/$org/$year/$filename") {
+                if ("$file" -match "roots/$org/$year/$filename") {
                   echo "file match"
                 }
                 else {
@@ -79,10 +79,10 @@ jobs:
                   echo "error 1"
                 }
             } else {
-                if ($changedFile -eq "intermediaries\$org\$year\$filename") {
+                if ($file -eq "intermediaries/$org/$year/$filename") {
                   echo "file match"
                 } else {
-                  echo "intermediaries\$org\$year\$filename"
+                  echo "intermediaries/$org/$year/$filename"
                   echo "error 2"
                 }
             }        
