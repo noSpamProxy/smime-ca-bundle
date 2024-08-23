@@ -50,7 +50,7 @@ jobs:
         shell: pwsh
         run: |
           $fail = $false
-          foreach ($changedFile in ${ALL_CHANGED_FILES}) {
+          foreach ($file in ${ALL_CHANGED_FILES}) {
             echo "$file was changed"
             $bytes = [System.IO.File]::ReadAllBytes($file)
             $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
