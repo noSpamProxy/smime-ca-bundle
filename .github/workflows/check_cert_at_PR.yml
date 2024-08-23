@@ -36,8 +36,8 @@ jobs:
               then 
                 echo "File is not PEM encoded."
                 fail=true
+                echo "test cmd"
             fi
-            echo "openssl?"
           done        
           if [[ $fail -eq true ]]
             then
@@ -71,7 +71,7 @@ jobs:
             $filename = $filenameTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
             $year = $cert.NotBefore.Year
             if ($cert.Issuer -eq $cert.Subject) {
-                if ($changedFile -eq "roots\$org\$year\$filename") {
+                if ($changedFile -eq "roots/$org/$year/$filename") {
                   echo "file match"
                 }
                 else {
