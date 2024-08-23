@@ -20,6 +20,7 @@ jobs:
         uses: tj-actions/changed-files@v45
         with:
           since_last_remote_commit: true
+          dir_names: true
 
       - name: Check PEM encoding
         env:    
