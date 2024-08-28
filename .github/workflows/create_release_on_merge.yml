@@ -33,7 +33,9 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Create P7B certificate bundle
         run: |
-          echo 'create P7B here.'
+          cd $GITHUB_WORKSPACE
+          certFiles=();for file in $(find ~+ -iname "*.cer");  do echo ${file}; certFiles+=(-certfile ${file}); done;
+          openssl crl2pkcs7 -nocrl "${certFiles[@]}" -outform DER -out releasebuild.p7b
           
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
