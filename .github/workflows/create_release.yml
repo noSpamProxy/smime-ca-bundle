@@ -31,7 +31,7 @@ jobs:
       - name: ZIP certificates
         run: |
           cd $GITHUB_WORKSPACE
-          zip -r releasebuild.zip roots intermediaries
+          zip -r releasebuild.zip roots intermediaries -i *.cer
 
       # Runs a set of commands using the runners shell
       - name: Create P7B certificate bundle
