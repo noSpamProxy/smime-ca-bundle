@@ -44,5 +44,5 @@ jobs:
         uses: ncipollo/release-action@v1.14.0
         with:
           tag: ${{ inputs.version }}
-          artifacts: "releasebuild.zip"
+          artifacts: "releasebuild_${{ inputs.version }}.zip","releasebuild_${{ inputs.version }}.p7b"
           body: "asdf"
