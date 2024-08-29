@@ -1,16 +1,19 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Create Release
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push request events but only for the "main" branch
   # there is no trigger for "merge to main"
-  push:
-    branches: [ "ma_in" ]
+  #push:
+  #  branches: [ "ma_in" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number. (e.x.: 2024-02-04)'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,7 +25,8 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Get repo 
+        uses: actions/checkout@v4
 
       - name: ZIP certificates
         run: |
@@ -30,13 +34,15 @@ jobs:
           zip -r releasebuild.zip roots intermediaries
 
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Create P7B certificate bundle
         run: |
-          echo 'create P7B here.'
+          cd $GITHUB_WORKSPACE
+          certFiles=();for file in $(find ~+ -iname "*.cer");  do echo ${file}; certFiles+=(-certfile ${file}); done;
+          openssl crl2pkcs7 -nocrl "${certFiles[@]}" -outform DER -out releasebuild.p7b
           
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
         with:
-          tag: v0.0.1
+          tag: ${{ inputs.version }}
           artifacts: "releasebuild.zip"
           body: "asdf"
