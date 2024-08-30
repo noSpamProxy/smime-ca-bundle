@@ -39,10 +39,44 @@ jobs:
           cd $GITHUB_WORKSPACE
           certFiles=();for file in $(find ~+ -iname "*.cer");  do echo ${file}; certFiles+=(-certfile ${file}); done;
           openssl crl2pkcs7 -nocrl "${certFiles[@]}" -outform DER -out releasebuild.p7b
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            - **.cer     
+
+      - name: Create release description
+        env:
+          ADDED_FILES: ${{ steps.changed-files.outputs.added_files }}
+          DELETED_FILES: ${{ steps.changed-files-specific.outputs.deleted_files }}
+        run: |
+          cd $GITHUB_WORKSPACE
           
+          echo "# Added certificates:" >> ReleaseNotes.md
+          if [[ -z "${ADDED_FILES}" ]]
+          then
+            echo "No certificates added in this release." >> ReleaseNotes.md
+          else
+            for file in ${ADDED_FILES}; do
+              echo "- $file  " >> ReleaseNotes.md
+            done
+          fi
+
+          echo "# Deleted certificates:" >> ReleaseNotes.md
+          if [[ -z "${ADDED_FILES}" ]]
+          then
+            echo "No certificates deleted in this release." >> ReleaseNotes.md
+          else
+            for file in ${DELETED_FILES}; do
+              echo "- $file  " >> ReleaseNotes.md
+            done
+          fi
+
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
         with:
           tag: ${{ inputs.version }}
           artifacts: "releasebuild.zip"
-          body: "asdf"
+          bodyFile: "ReleaseNotes.md"
