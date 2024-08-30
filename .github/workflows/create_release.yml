@@ -44,13 +44,22 @@ jobs:
           cd $GITHUB_WORKSPACE
           certFiles=();for file in $(find ~+ -iname "*.cer");  do echo ${file}; certFiles+=(-certfile ${file}); done;
           openssl crl2pkcs7 -nocrl "${certFiles[@]}" -outform DER -out releasebuild.p7b
-          
+
+      - name: Get previous release tag
+        id: get-tag
+        run: |
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
+          echo "prev tag: $PREVIOUS_TAG"
+          echo "prev_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT  
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v45
         with:
+          base_sha: ${{ steps.get-tag.outputs.prev_tag }}
+          sha: ${{ github.event.workflow_run.head_branch }}
           files: |
-            - **.cer     
+            - **.cer  
 
       - name: Create release description
         env:
@@ -78,21 +87,6 @@ jobs:
               echo "- $file  " >> ReleaseNotes.md
             done
           fi
-
-      - name: Get Tag
-        id: get-tag
-        run: |
-          git tag --sort=-v:refname | head -n 2 | tail -n 1
-          PREVIOUS_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
-          echo "my tag: $PREVIOUS_TAG"
-          echo "prev_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT    
-
-      - name: Get changed files
-        id: changed-files2
-        uses: tj-actions/changed-files@v45
-        with:
-          base_sha: ${{ steps.get-tag.outputs.prev_tag }}
-          sha: ${{ github.event.workflow_run.head_branch }}
 
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
