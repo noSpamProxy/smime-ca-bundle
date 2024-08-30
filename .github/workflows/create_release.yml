@@ -80,15 +80,16 @@ jobs:
       - name: Get Tag
         id: get-tag
         run: |
+          git tag --sort=-v:refname | head -n 2 | tail -n 1
           PREVIOUS_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
           echo "$PREVIOUS_TAG"
-          return $PREVIOUS_TAG
+          echo "prev_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT    
 
       - name: Get changed files
         id: changed-files2
         uses: tj-actions/changed-files@v45
         with:
-          base_sha: ${{ steps.get-tag.outputs.result }}
+          base_sha: ${{ steps.get-tag.outputs.prev_tag }}
           sha: ${{ github.event.workflow_run.head_branch }}
 
       - name: Create release
