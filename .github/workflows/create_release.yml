@@ -82,7 +82,7 @@ jobs:
         run: |
           PREVIOUS_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
           echo "$PREVIOUS_TAG"
-          return $PREVIOUS_TAG"
+          return $PREVIOUS_TAG
 
       - name: Get changed files
         id: changed-files2
