@@ -83,7 +83,7 @@ jobs:
           echo "previous_tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Get changed files
-        id: changed-files
+        id: changed-files2
         uses: tj-actions/changed-files@v45
         with:
           base_sha: ${{ steps.get-tag.outputs.previous_tag }}
