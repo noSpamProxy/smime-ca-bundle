@@ -82,7 +82,7 @@ jobs:
         run: |
           git tag --sort=-v:refname | head -n 2 | tail -n 1
           PREVIOUS_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
-          echo "$PREVIOUS_TAG"
+          echo "my tag: $PREVIOUS_TAG"
           echo "prev_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT    
 
       - name: Get changed files
