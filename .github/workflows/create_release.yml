@@ -76,6 +76,18 @@ jobs:
               echo "- $file  " >> ReleaseNotes.md
             done
           fi
+      - name: Get Tag
+        id: get-tag
+        run: |
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | head -n 2 | tail -n 1)
+          echo "previous_tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          base_sha: ${{ steps.get-tag.outputs.previous_tag }}
+          sha: ${{ github.event.workflow_run.head_branch }}
 
       - name: Create release
         uses: ncipollo/release-action@v1.14.0
