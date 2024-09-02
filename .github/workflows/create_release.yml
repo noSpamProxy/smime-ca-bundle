@@ -59,7 +59,7 @@ jobs:
           base_sha: ${{ steps.get-tag.outputs.prev_tag }}
           sha: ${{ github.event.workflow_run.head_branch }}
           files: |
-            - **.cer  
+            **.cer  
 
       - name: Create release description
         env:
