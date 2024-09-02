@@ -36,9 +36,8 @@ jobs:
       - name: ZIP certificates
         run: |
           cd $GITHUB_WORKSPACE
-          zip -r releasebuild.zip roots intermediaries -i *.cer
+          zip -r ${{ inputs.version }}_NoSpamProxy_CA_Bundle.zip roots intermediaries -i *.cer
 
-      # Runs a set of commands using the runners shell
       - name: Create P7B certificate bundle
         run: |
           cd $GITHUB_WORKSPACE
@@ -92,5 +91,5 @@ jobs:
         uses: ncipollo/release-action@v1.14.0
         with:
           tag: ${{ inputs.version }}
-          artifacts: "releasebuild.zip"
+          artifacts: "${{ inputs.version }}_NoSpamProxy_CA_Bundle.zip,releasebuild.p7b"
           bodyFile: "ReleaseNotes.md"
