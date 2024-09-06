@@ -73,13 +73,13 @@ jobs:
             $filename = $filenameTemp2.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-') -replace '\.$',''            
             $year = $cert.NotBefore.Year
             if ($cert.Issuer -eq $cert.Subject) {
-                if ($file -ne "roots/$org/$year/$filename") {
+                if ($file.Replace('\','') -ne "roots/$org/$year/$filename") {
                   echo "::error file=$file::$file - root certificate is a wrong location."
                   echo "::notice:: file should be located under roots/$org/$year/$filename"
                   $fail = $true
                 }
             } else {
-                if ($file -ne "intermediaries/$org/$year/$filename") {
+                if ($file.Replace('\','') -ne "intermediaries/$org/$year/$filename") {
                   echo "::error file=$file::$file - intermediate certificate is a wrong location."
                   echo "::notice:: file should be located under intermediaries/$org/$year/$filename"
                   $fail = $true
