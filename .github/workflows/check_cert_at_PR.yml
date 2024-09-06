@@ -81,7 +81,7 @@ jobs:
             } else {
                 if ($file -ne "intermediaries/$org/$year/$filename") {
                   echo "::error file=$file::$file - intermediate certificate is a wrong location."
-                  echo "::notice:: file should be located under roots/$org/$year/$filename"
+                  echo "::notice:: file should be located under intermediaries/$org/$year/$filename"
                   $fail = $true
                 }
             }        
