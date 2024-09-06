@@ -30,6 +30,7 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           # check PEM encoding
+          openssl version
           set +e
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
