@@ -67,8 +67,7 @@ jobs:
             }
             $o = ($dn.Format($true).Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
             $oTemp = $o.Replace(' ','_')
-            $oTemp2 = $otemp.Replace('"','')
-            $org = $oTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
+            $org = $oTemp.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-').Replace('./','/')
             $filenameTemp = "$($cn.Replace(' ','_'))_$($cert.Thumbprint).cer"
             $filenameTemp2 = $filenameTemp.Replace('"','')
             $filename = $filenameTemp2.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-').Replace('./','/')            
