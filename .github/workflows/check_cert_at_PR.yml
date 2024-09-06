@@ -71,7 +71,7 @@ jobs:
             $org = $oTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
             $filenameTemp = "$($cn.Replace(' ','_'))_$($cert.Thumbprint).cer"
             $filenameTemp2 = $filenameTemp.Replace('"','')
-            $filename = $filenameTemp2.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-')            
+            $filename = $filenameTemp2.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-').Replace('./','/')            
             $year = $cert.NotBefore.Year
             if ($cert.Issuer -eq $cert.Subject) {
                 if ($file -ne "roots/$org/$year/$filename") {
