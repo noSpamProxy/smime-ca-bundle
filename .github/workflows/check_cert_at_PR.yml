@@ -60,7 +60,7 @@ jobs:
             $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
             $dn = [X500DistinguishedName]::new($cert.Subject)
             try {
-              $cn = ($dn.Format($true).Split('[Environment]::NewLine', [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'CN='}).Split('=')[1]
+              $cn = ($dn.Format($true).Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'CN='}).Split('=')[1]
             } catch {
               $o = ($dn.Format($true).Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
               $cn = $o
