@@ -68,7 +68,7 @@ jobs:
             $oTemp = $o.Replace(' ','_')
             $oTemp2 = $otemp.Replace('"','')
             $org = $oTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
-            $filenameTemp = "$($cn.Replace(' ','_'))_$($cert.Thumbprint).der"
+            $filenameTemp = "$($cn.Replace(' ','_'))_$($cert.Thumbprint).cer"
             $filenameTemp2 = $filenameTemp.Replace('"','')
             $filename = $filenameTemp2.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
             $year = $cert.NotBefore.Year
