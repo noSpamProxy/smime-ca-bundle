@@ -33,7 +33,7 @@ jobs:
           set +e
           fail=false
           for file in ${ALL_CHANGED_FILES}; do
-            openssl x509 -noout -inform PEM -in $file
+            openssl x509 -noout -inform PEM -in "$file"
             if [[ $? -ne 0 ]]
               then 
                 echo "::error file=$file::$file is not PEM encoded."
