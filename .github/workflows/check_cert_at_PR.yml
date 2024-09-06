@@ -56,7 +56,7 @@ jobs:
           # check file name and location
           $fail = $false
           foreach ($file in ${env:ALL_CHANGED_FILES}.Split(' ')) {
-            $bytes = [System.IO.File]::ReadAllBytes($file)
+            $bytes = [System.IO.File]::ReadAllBytes("$(echo "$file" |sed 's@\\@@g')")
             $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
             $dn = [X500DistinguishedName]::new($cert.Subject)
             try {
