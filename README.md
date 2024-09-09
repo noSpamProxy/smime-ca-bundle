@@ -9,7 +9,7 @@ Use them at your own risk.
 In order not to lose the overview, the repository has the following structure  
 `certificatetype/companyname/yearofissue/certificatename-certificatsthumbprint.cer`  
 e.g.  
-`root/Net at Work/2024/MailCertificate_0x112233-974E423EE44A99FA98CFC46BCDCACA91E0A7FAD6.der  
+`root/Net at Work/2024/MailCertificate_0x112233-974E423EE44A99FA98CFC46BCDCACA91E0A7FAD6.cer`
 
 ### Intermediate
 The `intermediaries` folder contains all intermediary CA certificates in the bundle.
