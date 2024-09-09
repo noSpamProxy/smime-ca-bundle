@@ -30,6 +30,11 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           # check PEM encoding
+          if [[ ${ALL_CHANGED_FILES} -ne 0 ]]
+            then
+              # do not fail check if no certificate was added or changed
+              exit
+          fi
           openssl version
           set +e
           fail=false
@@ -54,6 +59,10 @@ jobs:
         shell: pwsh
         run: |
           # check file name and location
+          if ($null -eq ${env:ALL_CHANGED_FILES} -OR ${env:ALL_CHANGED_FILES} -eq "") {
+            # do not fail check if no certificate was added or changed
+            exit
+          }
           $fail = $false
           foreach ($file in ${env:ALL_CHANGED_FILES}.Split(' ')) {
             $bytes = [System.IO.File]::ReadAllBytes($file.Replace('\',''))
