@@ -70,8 +70,12 @@ jobs:
               $o = ($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
             } catch {
               # bad fallback if no organization exists
-              $dc = (($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries)) | Where-Object {$_ -match 'DC='}).Split('=')[3]
-              $o = $dc
+              try {
+                $dc = (($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries)) | Where-Object {$_ -match 'DC='}).Split('=')[3]
+                $o = $dc
+              } catch {
+                $o = "Various"
+              }
             }
             $oTemp = $o.Replace(' ','_')
             $org = $oTemp.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-') -replace '\.$',''
