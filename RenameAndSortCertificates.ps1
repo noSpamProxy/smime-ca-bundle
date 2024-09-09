@@ -33,18 +33,22 @@ foreach ($file in $files) {
     $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
     $dn = [X500DistinguishedName]::new($cert.Subject)
     try {
-        $cn = ($dn.Format($true).Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'CN='}).Split('=')[1]
+        $cn = ($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'CN='}).Split('=')[1]
     } catch {
-        $o = ($dn.Format($true).Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
+        $o = ($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
         $cn = $o
     }
-    $o = ($dn.Format($true).Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
+    try {
+      $o = ($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
+    } catch {
+      # bad fallback if no organization exists
+      $dc = (($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries)) | Where-Object {$_ -match 'DC='}).Split('=')[3]
+      $o = $dc
+    }
     $o = $o.Replace(' ','_')
-    $o = $o.Replace('"','')
-    $org = $o.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
+    $org = $o.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-') -replace '\.$',''
     $filename = "$($cn.Replace(' ','_'))_$($cert.Thumbprint).cer"
-    $filename = $filename.Replace('"','')
-    $filename = $filename.Split([IO.Path]::GetInvalidFileNameChars()) -join '-'
+    $filename = $filename.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-') -replace '\.$',''
     $year = $cert.NotBefore.Year
     if ($cert.Issuer -eq $cert.Subject) {
         New-Item -ItemType Directory roots\$org
