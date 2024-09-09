@@ -56,7 +56,7 @@ jobs:
           # check file name and location
           $fail = $false
           foreach ($file in ${env:ALL_CHANGED_FILES}.Split(' ')) {
-            Write-Host "$file.Name"
+            Write-Host "$file"
             $bytes = [System.IO.File]::ReadAllBytes($file.Replace('\',''))
             $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($bytes)
             $dn = [X500DistinguishedName]::new($cert.Subject)
@@ -66,7 +66,13 @@ jobs:
               $o = ($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
               $cn = $o
             }
-            $o = ($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
+            try {
+              $o = ($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries) | Where-Object {$_ -match 'O='}).Split('=')[1]
+            } catch {
+              # bad fallback if no organization exists
+              $dc = (($dn.Format($true).Split([string[]] @("`r`n", "`r", "`n"), [StringSplitOptions]::RemoveEmptyEntries)) | Where-Object {$_ -match 'DC='}).Split('=')[3]
+              $o = $dc
+            }
             $oTemp = $o.Replace(' ','_')
             $org = $oTemp.Replace('"','').Replace('<','-').Replace('>','-').Replace(':','-').Replace('/','-').Replace('\','-').Replace('|','-').Replace('?','-').Replace('*','-') -replace '\.$',''
             $filenameTemp = "$($cn.Replace(' ','_'))_$($cert.Thumbprint).cer"
