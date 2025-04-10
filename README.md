@@ -1,5 +1,5 @@
 # SMIME CA Bundle
-Welcome to the NoSpamProxy SMIME CA Bundle repository! Use NoSpamproxy for e-mail security and encryption.  
+Welcome to the NoSpamProxy SMIME CA Bundle repository! Use NoSpamProxy for e-mail security and encryption.  
 This repository serves as a community-driven SMIME CA bundle. Everyone is welcome to create pull requests to add CA or sub-CA certificates. We will review and possibly discuss each request.  
 
 **Please note** that we do not actively maintain the certificates themselves and are **not responsible for any of the provided certificates**.
