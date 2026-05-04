@@ -1,0 +1,133 @@
+# This workflow scans all certificates in the repository, reports expired ones,
+# and opens a PR to delete certificates that have been expired for more than 30 days.
+# The workflow runs on the 1st of each month and stops early if an open deletion PR
+# already exists.
+
+name: Cleanup Expired Certificates
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # 1st of each month at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    name: Find and remove expired certificates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Check for existing open deletion PR
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Abort if an open PR for removing expired certificates already exists.
+          count=$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --state open \
+            --search "Remove expired certificates in:title" \
+            --json number \
+            --jq 'length')
+          echo "open_count=$count" >> "$GITHUB_OUTPUT"
+          if [[ "$count" -gt 0 ]]; then
+            echo "::notice::An open PR for removing expired certificates already exists. Skipping this run."
+          fi
+      - name: Checkout repository
+        if: steps.check-pr.outputs.open_count == '0'
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+
+      - name: Find expired certificates
+        if: steps.check-pr.outputs.open_count == '0'
+        id: find-expired
+        run: |
+          TODAY=$(date +%s)
+          THIRTY_DAYS_AGO=$(( TODAY - 30 * 24 * 60 * 60 ))
+          # Initialise result files
+          : > /tmp/expired_certs.txt
+          : > /tmp/old_expired_certs.txt
+          while IFS= read -r -d '' file; do
+            expiry_str=$(openssl x509 -noout -enddate -in "$file" 2>/dev/null | cut -d= -f2-)
+            [[ -z "$expiry_str" ]] && continue
+            expiry_epoch=$(date -d "$expiry_str" +%s 2>/dev/null)
+            [[ -z "$expiry_epoch" ]] && continue
+            if (( expiry_epoch < TODAY )); then
+              expiry_iso=$(date -d "$expiry_str" +%Y-%m-%d)
+              echo "::warning::Expired certificate: $file  |  Expiry date: $expiry_iso"
+              echo "$file $expiry_iso" >> /tmp/expired_certs.txt
+              if (( expiry_epoch < THIRTY_DAYS_AGO )); then
+                echo "$file $expiry_iso" >> /tmp/old_expired_certs.txt
+              fi
+            fi
+          done < <(find roots intermediaries -name "*.cer" -print0)
+          expired_count=$(wc -l < /tmp/expired_certs.txt | tr -d ' ')
+          old_count=$(wc -l < /tmp/old_expired_certs.txt | tr -d ' ')
+          echo "expired_count=$expired_count" >> "$GITHUB_OUTPUT"
+          echo "old_count=$old_count" >> "$GITHUB_OUTPUT"
+          echo "Total expired certificates: $expired_count"
+          echo "Certificates expired > 30 days: $old_count"
+      - name: Write job summary
+        if: steps.check-pr.outputs.open_count == '0'
+        run: |
+          {
+            echo "## Expired Certificates"
+            echo ""
+            if [[ "${{ steps.find-expired.outputs.expired_count }}" -eq 0 ]]; then
+              echo ":white_check_mark: No expired certificates found."
+            else
+              echo "### All expired certificates (${{ steps.find-expired.outputs.expired_count }} total)"
+              echo ""
+              while IFS= read -r line; do
+                f=$(echo "$line" | cut -f1)
+                d=$(echo "$line" | cut -f2)
+                echo "- \`$f\` - expired: $d"
+              done < /tmp/expired_certs.txt
+              echo ""
+              echo "### Expired for more than 30 days (${{ steps.find-expired.outputs.old_count }})"
+              echo ""
+              if [[ "${{ steps.find-expired.outputs.old_count }}" -eq 0 ]]; then
+                echo "None — no action required."
+              else
+                while IFS= read -r line; do
+                  f=$(echo "$line" | cut -f1)
+                  d=$(echo "$line" | cut -f2)
+                  echo "- \`$f\` - expired: $d"
+                done < /tmp/old_expired_certs.txt
+              fi
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Ensure label exists
+        if: steps.check-pr.outputs.open_count == '0' && steps.find-expired.outputs.old_count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create "expired-certificates" \
+            --description "Automated PR to remove expired certificates" \
+            --color "d73a4a" \
+            --repo "${{ github.repository }}" \
+            2>/dev/null || true
+      - name: Create PR to delete expired certificates
+        if: steps.check-pr.outputs.open_count == '0' && steps.find-expired.outputs.old_count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="cleanup/expired-certificates-$(date +%Y-%m-%d)-${{ github.run_id }}"
+          git checkout -b "$BRANCH"
+          mapfile -t files < <(cut -f1 /tmp/old_expired_certs.txt)
+          git rm "${files[@]}"
+          git commit -m "Remove certificates expired for more than 30 days"
+          git push origin "$BRANCH"
+          PR_BODY="The following certificates have been expired for more than 30 days and are proposed for deletion:"$'\n\n'
+          while IFS=$'\t' read -r f d; do
+            PR_BODY+="- \`$f\` — expired: $d"$'\n'
+          done < /tmp/old_expired_certs.txt
+          gh pr create \
+            --title "Remove expired certificates (expired > 30 days)" \
+            --body "$PR_BODY" \
+            --label "expired-certificates" \
+            --base main \
+            --head "$BRANCH"
