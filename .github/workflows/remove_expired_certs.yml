@@ -56,9 +56,9 @@ jobs:
             if (( expiry_epoch < TODAY )); then
               expiry_iso=$(date -d "$expiry_str" +%Y-%m-%d)
               echo "::warning::Expired certificate: $file  |  Expiry date: $expiry_iso"
-              echo "$file $expiry_iso" >> /tmp/expired_certs.txt
+              printf '%s\t%s\n' "$file" "$expiry_iso" >> /tmp/expired_certs.txt
               if (( expiry_epoch < THIRTY_DAYS_AGO )); then
-                echo "$file $expiry_iso" >> /tmp/old_expired_certs.txt
+                printf '%s\t%s\n' "$file" "$expiry_iso" >> /tmp/old_expired_certs.txt
               fi
             fi
           done < <(find roots intermediaries -name "*.cer" -print0)
@@ -79,9 +79,7 @@ jobs:
             else
               echo "### All expired certificates (${{ steps.find-expired.outputs.expired_count }} total)"
               echo ""
-              while IFS= read -r line; do
-                f=$(echo "$line" | cut -f1)
-                d=$(echo "$line" | cut -f2)
+              while IFS=$'\t' read -r f d; do
                 echo "- \`$f\` - expired: $d"
               done < /tmp/expired_certs.txt
               echo ""
@@ -90,9 +88,7 @@ jobs:
               if [[ "${{ steps.find-expired.outputs.old_count }}" -eq 0 ]]; then
                 echo "None — no action required."
               else
-                while IFS= read -r line; do
-                  f=$(echo "$line" | cut -f1)
-                  d=$(echo "$line" | cut -f2)
+                while IFS=$'\t' read -r f d; do
                   echo "- \`$f\` - expired: $d"
                 done < /tmp/old_expired_certs.txt
               fi
@@ -113,12 +109,27 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           BRANCH="cleanup/expired-certificates-$(date +%Y-%m-%d)-${{ github.run_id }}"
           git checkout -b "$BRANCH"
-          mapfile -t files < <(cut -f1 /tmp/old_expired_certs.txt)
-          git rm "${files[@]}"
+          removed_any=0
+          while IFS=$'\t' read -r f d; do
+            [[ -z "$f" ]] && continue
+            if git ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+              git rm -- "$f"
+              removed_any=1
+            else
+              echo "::notice::Skipping non-tracked or missing file: $f"
+            fi
+          done < /tmp/old_expired_certs.txt
+
+          if [[ "$removed_any" -eq 0 ]]; then
+            echo "::notice::No tracked files eligible for removal. Skipping PR creation."
+            exit 0
+          fi
+
           git commit -m "Remove certificates expired for more than 30 days"
           git push origin "$BRANCH"
           PR_BODY="The following certificates have been expired for more than 30 days and are proposed for deletion:"$'\n\n'
